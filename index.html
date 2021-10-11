@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Allasite - Marketplace</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="assets/favicon.svg">
+
+</head>
+
+<body>
+<button class="btn btn-primary" onclick="soapRequest2();" >Probar HTTPS</button>
+<button class="btn btn-primary" onclick="soapRequest();" >Probar HTTPS sin  envelop</button>
+  </body>
+<script type="text/javascript">
+function soapRequest() {
+	let xmlreq = new XMLHttpRequest();
+	xmlreq.open('GET', 'https://httpbin.org/get', true);
+	// creamos soap request
+    xmlreq.onreadystatechange = () => {
+      if (xmlreq.readyState == 4) {
+        if (xmlreq.status == 200) {
+          let xml = xmlreq.responseText;
+          console.log('la respuesta es: ', xml);
+          console.log('y convertido a json es: ', JSON.stringify(xml));
+        }
+      }
+    }
+	// enviamos el post request
+    xmlreq.setRequestHeader('Content-Type', 'text/json');
+    xmlreq.send();
+}
+
+function soapRequest2() {
+    let url = 'https://www.ebi.ac.uk/europepmc/webservices/soap';
+    let url2 = 'api/soap'
+    let sobre = this.getCabecera("getReferences") + this.getCuerpo(this.cosa) + this.getPie("getReferences");
+    let xmlreq = new XMLHttpRequest();
+    xmlreq.open('POST', url, true);
+
+    // creamos soap request
+    xmlreq.onreadystatechange = () => {
+      if (xmlreq.readyState == 4) {
+        if (xmlreq.status == 200) {
+          let xml = xmlreq.responseXML;
+          console.log('la respuesta es: ', xml);
+          console.log('y convertido a json es: ', JSON.stringify(xml));
+        }
+      }
+    }
+
+    // enviamos el post request
+    xmlreq.setRequestHeader('Content-Type', 'text/xml');
+    xmlreq.send(sobre);
+  }
+  
+  function getCabecera(metodo) {
+    let res = '<?xml version="1.0" encoding="UTF-8"?><soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="https://webservice.cdb.ebi.ac.uk/"><soapenv:Header/><soapenv:Body><web:${metodo}>';
+
+    return res;
+  }
+
+  function getPie(metodo) {
+    let res = '</web:${metodo}></soapenv:Body></soapenv:Envelope>';
+    return res;
+  }
+
+  function getCuerpo(datos) {
+    let res = '';
+    for (const key in datos) {
+      res = res + '<${key}>${datos[key]}</${key}>';
+    }
+    return res;
+  }
+  
+</script>
+</html>
